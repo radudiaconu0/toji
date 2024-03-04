@@ -30,19 +30,19 @@ impl PartialEq for WebSocket {
 pub struct WSHandler;
 
 impl WSHandler {
-    pub async fn on_open(ws: &mut WebSocket, app_state: AppState) {
+    pub async fn on_open(ws: &mut WebSocket) {
         Log::websocket_title("WebSocket connection opened");
         ws.id = Some(Self::generate_socket_id());
-        if app_state.closing {
-            ws.send_json(serde_json::json!({
-                    "event": "pusher:error",
-                    "data": serde_json::json!({
-                        "code": 4200,
-                        "message": "Server is closing. Please reconnect shortly.",
-                    }),
-                }))
-                .await;
-        }
+        // if app_state.closing {
+        //     ws.send_json(serde_json::json!({
+        //             "event": "pusher:error",
+        //             "data": serde_json::json!({
+        //                 "code": 4200,
+        //                 "message": "Server is closing. Please reconnect shortly.",
+        //             }),
+        //         }))
+        //         .await;
+        // }
         let broadcast_message = serde_json::json!({
             "event": "pusher:connection_established",
             "data": serde_json::json!({
@@ -136,10 +136,12 @@ impl WSHandler {
         Log::websocket_title("Received ping");
     }
 
-    pub async fn handle_socket(socket: WS, who: SocketAddr, state: AppState) {
+    pub async fn handle_socket(socket: WS, who: SocketAddr) {
         println!("New WebSocket connection: {}", who);
         let mut ws = WebSocket::new(socket);
-        WSHandler::on_open(&mut ws, state).await;
+        WSHandler::on_open(&mut ws
+                           //, state
+        ).await;
         while let Ok(ev) = ws.ws.recv().await {
             match ev {
                 Event::Data { ty, data } => {
@@ -170,7 +172,7 @@ impl WSHandler {
         query: Query<PusherWebsocketQuery>,
         ws: WebSocketUpgrade,
         ConnectInfo(addr): ConnectInfo<SocketAddr>,
-        State(state): State<AppState>,
+        // State(state): State<AppState>,
     ) -> impl IntoResponse {
         Log::info(format!(
             "WebSocket connection for app {}. Protocol: {}, client: {}, version: {}, flash: {}",
