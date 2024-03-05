@@ -1,8 +1,9 @@
 use crate::channels::channel::Channel;
 use crate::channels::presence_channel_manager::{PresenceMember, PresenceMemberInfo};
-use std::collections::{HashMap, HashSet};
-use std::sync::{Arc, Mutex};
 use crate::web_socket::WebSocket;
+use std::collections::{HashMap, HashSet};
+use std::future::Future;
+use std::sync::{Arc, Mutex};
 
 pub struct Namespace {
     pub channels: HashMap<String, HashSet<String>>,

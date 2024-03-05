@@ -1,5 +1,6 @@
 use crate::channels::channel::Channel;
 use crate::channels::presence_channel_manager::PresenceMemberInfo;
+use crate::message;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use crate::adapters::adapter::Adapter;
@@ -54,7 +55,12 @@ impl Adapter for LocalAdapter {
     }
 
     async fn terminate_user_connections(&mut self, app_id: &str, user_id: &str) {
-        todo!()
+    }
+
+    async fn send_to_socket(namespace: Namespace, user_id: &str, message: serde_json::Value) {
+        namespace.to_user_sockets(user_id, |ws| async {
+            ws.send_json(message).await
+        })
     }
 
     async fn disconnect(&self) {

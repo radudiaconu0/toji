@@ -26,14 +26,14 @@ impl Hash for WebSocket {
 impl WebSocket {
     pub fn new(ws: WS) -> Self {
         WebSocket {
-            ws: ws,
+            ws,
             id: None,
             app_key: None,
             user: None,
         }
     }
 
-    pub async fn send_json(&mut self, data: serde_json::Value) {
+    pub async fn send_json(&mut self, data: serde_json::Value) /* Result<(), Box<dyn Error>> */ {
         Log::websocket_title("Sending message to client");
         Log::websocket(&data.to_string());
         let message = match serde_json::to_string(&data) {
@@ -46,6 +46,6 @@ impl WebSocket {
         self.ws
             .send(message.as_str())
             .await
-            .expect("TODO: panic message");
+            .expect("TODO: handle errors: all network requests can fail");
     }
 }

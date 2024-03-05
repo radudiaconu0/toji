@@ -25,6 +25,7 @@ mod http_handler;
 use adapters::local_adapter::LocalAdapter;
 use crate::web_socket::WebSocket;
 
+#[derive(Default)]
 pub struct AppState {
     options: Options,
     closing: bool,
