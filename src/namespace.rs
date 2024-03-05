@@ -185,15 +185,22 @@ impl Namespace {
         }
         Ok(socket_ids)
     }
-    pub fn get_user_sockets(&self, user_id: &str) -> Result<HashSet<&WebSocket>, ()> {
-        let mut sockets = HashSet::new();
-        if let Some(ws_ids) = self.users.get(user_id) {
-            for ws_id in ws_ids.iter() {
-                if let Some(ws) = self.sockets.lock().unwrap().get(ws_id) {
-                    sockets.insert(ws);
-                }
+
+    pub fn to_user_sockets<F, T, U>(&self, user_id: &str, f: F) -> Vec<T>
+    where
+        F: Fn(&WebSocket) -> T,
+        T: Future<Output = U>,
+    {
+        match self.users.get(user_id) {
+            Some(ws_ids) => {
+                let sockets = self.sockets.lock().unwrap();
+                ws_ids
+                    .into_iter()
+                    .filter_map(|id| sockets.get(id))
+                    .map(f)
+                    .collect()
             }
+            _ => vec![],
         }
-        Ok(sockets)
     }
 }
