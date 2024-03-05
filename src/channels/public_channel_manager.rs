@@ -20,7 +20,7 @@ pub struct LeaveResponse {
 }
 
 struct PublicChannelManager {
-   ws: WebSocket,
+    ws: WebSocket,
 }
 
 impl PublicChannelManager {

@@ -1,9 +1,9 @@
+use crate::log::Log;
+use serde::{Deserialize, Serialize};
 use std::hash::Hash;
 use std::sync::Arc;
-use serde::{Serialize, Deserialize};
-use tokio::sync::Mutex;
 use toji::WS;
-use crate::log::Log;
+use tokio::sync::Mutex;
 
 #[derive(Debug, Clone)]
 pub struct User {
@@ -33,7 +33,8 @@ impl WebSocket {
         }
     }
 
-    pub async fn send_json(&mut self, data: serde_json::Value) /* Result<(), Box<dyn Error>> */ {
+    pub async fn send_json(&mut self, data: serde_json::Value) /* Result<(), Box<dyn Error>> */
+    {
         Log::websocket_title("Sending message to client");
         Log::websocket(&data.to_string());
         let message = match serde_json::to_string(&data) {

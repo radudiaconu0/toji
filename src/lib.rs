@@ -22,9 +22,9 @@ pub struct WebSocketUpgrade {
 
 impl WebSocketUpgrade {
     pub fn on_upgrade<C, Fut>(self, callback: C) -> Response
-        where
-            C: FnOnce(WS) -> Fut + Send + 'static,
-            Fut: Future<Output = ()> + Send + 'static,
+    where
+        C: FnOnce(WS) -> Fut + Send + 'static,
+        Fut: Future<Output = ()> + Send + 'static,
     {
         let on_upgrade = self.on_upgrade;
         tokio::spawn(async move {
@@ -56,8 +56,8 @@ impl WebSocketUpgrade {
 
 #[async_trait]
 impl<S> FromRequestParts<S> for WebSocketUpgrade
-    where
-        S: Send + Sync,
+where
+    S: Send + Sync,
 {
     type Rejection = ();
 

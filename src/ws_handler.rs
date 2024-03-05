@@ -1,6 +1,8 @@
+use crate::adapters::adapter::Adapter;
 use crate::log::Log;
-use crate::{AppState, message};
 use crate::message::{PusherMessage, UWebSocketMessage};
+use crate::web_socket::WebSocket;
+use crate::{message, AppState};
 use axum::extract::{ConnectInfo, Path, Query, State};
 use axum::response::IntoResponse;
 use rand::Rng;
@@ -10,11 +12,9 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::net::SocketAddr;
 use std::sync::{Arc, Weak};
+use toji::{WebSocketUpgrade, WS};
 use tokio::sync::Mutex;
 use web_socket::Event;
-use toji::{WebSocketUpgrade, WS};
-use crate::adapters::adapter::Adapter;
-use crate::web_socket::WebSocket;
 
 #[derive(Debug, Clone)]
 pub struct User {
@@ -75,7 +75,11 @@ impl WSHandler {
         Log::websocket(&format!("Message: {}", message));
     }
 
-    pub(crate) async fn on_message(message: PusherMessage, mut ws: &WebSocket, state: Arc<Mutex<AppState>>) {
+    pub(crate) async fn on_message(
+        message: PusherMessage,
+        mut ws: &WebSocket,
+        state: Arc<Mutex<AppState>>,
+    ) {
         Log::websocket_title("Received message from client");
         match message.data {
             Some(data) => {
@@ -85,7 +89,7 @@ impl WSHandler {
                 Log::websocket("No data");
             }
         }
-        match message.event { 
+        match message.event {
             Some(event) => match event.as_str() {
                 "pusher:subscribe" => {
                     WSHandler::subscribe_to_channel(ws, message.channel.unwrap()).await;
@@ -97,7 +101,7 @@ impl WSHandler {
                         "event": "pusher:unsubscribe",
                         "data": serde_json::json!({}),
                     }))
-                        .await;
+                    .await;
                     Log::websocket("Unsubscribing from channel");
                 }
                 "pusher:ping" => {
@@ -119,19 +123,19 @@ impl WSHandler {
     pub async fn handle_pong(mut ws: &mut WebSocket) {
         Log::websocket("Received pong");
         ws.send_json(serde_json::json!({
-                        "event": "pusher:ping",
-                        "data": serde_json::json!({}),
-                    }))
-            .await;
+            "event": "pusher:ping",
+            "data": serde_json::json!({}),
+        }))
+        .await;
         Log::websocket_title("Received pong");
     }
 
     pub async fn handle_ping(ws: &mut WebSocket) {
         ws.send_json(serde_json::json!({
-                        "event": "pusher:pong",
-                        "data": serde_json::json!({}),
-                    }))
-            .await;
+            "event": "pusher:pong",
+            "data": serde_json::json!({}),
+        }))
+        .await;
         Log::websocket_title("Received ping");
     }
 
@@ -186,7 +190,7 @@ impl WSHandler {
             "event": "pusher_internal:subscription_succeeded",
             "data": serde_json::json!({}),
         }))
-            .await;
+        .await;
     }
 }
 

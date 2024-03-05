@@ -1,10 +1,10 @@
-use std::collections::{HashMap, HashSet};
-use std::sync::{Arc, RwLock};
-use tokio::sync::Mutex;
 use crate::channels::channel::Channel;
 use crate::channels::presence_channel_manager::PresenceMemberInfo;
 use crate::namespace::Namespace;
 use crate::web_socket::WebSocket;
+use std::collections::{HashMap, HashSet};
+use std::sync::{Arc, RwLock};
+use tokio::sync::Mutex;
 
 pub trait Adapter {
     async fn get_namespace(&mut self, app_id: &str) -> Result<&Namespace, ()>;

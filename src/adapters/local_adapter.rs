@@ -1,11 +1,11 @@
+use crate::adapters::adapter::Adapter;
 use crate::channels::channel::Channel;
 use crate::channels::presence_channel_manager::PresenceMemberInfo;
 use crate::message;
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
-use crate::adapters::adapter::Adapter;
 use crate::namespace::Namespace;
 use crate::web_socket::WebSocket;
+use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 
 pub struct LocalAdapter {
     pub namespaces: HashMap<String, Namespace>,
@@ -46,7 +46,12 @@ impl Adapter for LocalAdapter {
         todo!()
     }
 
-    async fn remove_from_channel(&mut self, app_id: &str, channel: Channel, ws_id: &str) -> Option<usize> {
+    async fn remove_from_channel(
+        &mut self,
+        app_id: &str,
+        channel: Channel,
+        ws_id: &str,
+    ) -> Option<usize> {
         todo!()
     }
 
@@ -54,13 +59,10 @@ impl Adapter for LocalAdapter {
         todo!()
     }
 
-    async fn terminate_user_connections(&mut self, app_id: &str, user_id: &str) {
-    }
+    async fn terminate_user_connections(&mut self, app_id: &str, user_id: &str) {}
 
     async fn send_to_socket(namespace: Namespace, user_id: &str, message: serde_json::Value) {
-        namespace.to_user_sockets(user_id, |ws| async {
-            ws.send_json(message).await
-        })
+        namespace.to_user_sockets(user_id, |ws| async { ws.send_json(message).await })
     }
 
     async fn disconnect(&self) {
@@ -83,31 +85,65 @@ impl Adapter for LocalAdapter {
         todo!()
     }
 
-    async fn get_channels(&mut self, app_id: &str, only_local: bool) -> HashMap<String, HashSet<String>> {
+    async fn get_channels(
+        &mut self,
+        app_id: &str,
+        only_local: bool,
+    ) -> HashMap<String, HashSet<String>> {
         todo!()
     }
 
-    async fn get_channels_with_sockets_count(&mut self, app_id: &str, only_local: bool) -> HashMap<String, usize> {
+    async fn get_channels_with_sockets_count(
+        &mut self,
+        app_id: &str,
+        only_local: bool,
+    ) -> HashMap<String, usize> {
         todo!()
     }
 
-    async fn get_channel_sockets(&mut self, app_id: &str, channel: &str, only_local: bool) -> HashMap<String, &WebSocket> {
+    async fn get_channel_sockets(
+        &mut self,
+        app_id: &str,
+        channel: &str,
+        only_local: bool,
+    ) -> HashMap<String, &WebSocket> {
         todo!()
     }
 
-    async fn get_channel_sockets_count(&mut self, app_id: &str, channel: &str, only_local: bool) -> usize {
+    async fn get_channel_sockets_count(
+        &mut self,
+        app_id: &str,
+        channel: &str,
+        only_local: bool,
+    ) -> usize {
         todo!()
     }
 
-    async fn get_channel_members(&mut self, app_id: &str, channel: &str, only_local: bool) -> HashMap<String, PresenceMemberInfo> {
+    async fn get_channel_members(
+        &mut self,
+        app_id: &str,
+        channel: &str,
+        only_local: bool,
+    ) -> HashMap<String, PresenceMemberInfo> {
         todo!()
     }
 
-    async fn get_channel_members_count(&mut self, app_id: &str, channel: &str, only_local: bool) -> usize {
+    async fn get_channel_members_count(
+        &mut self,
+        app_id: &str,
+        channel: &str,
+        only_local: bool,
+    ) -> usize {
         todo!()
     }
 
-    async fn is_in_channel(&mut self, app_id: &str, channel: &str, ws_id: &str, only_local: bool) -> bool {
+    async fn is_in_channel(
+        &mut self,
+        app_id: &str,
+        channel: &str,
+        ws_id: &str,
+        only_local: bool,
+    ) -> bool {
         todo!()
     }
 

@@ -1,5 +1,5 @@
-use serde_json::Value;
 use crate::app::App;
+use serde_json::Value;
 #[derive(Debug, Clone)]
 pub struct Redis {
     pub host: String,

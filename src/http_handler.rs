@@ -7,10 +7,9 @@ use hyper::{HeaderMap, StatusCode};
 use serde::Serialize;
 use serde_json::json;
 
-
-use sysinfo::System;
 use crate::adapters::adapter::Adapter;
 use crate::AppState;
+use sysinfo::System;
 
 pub struct ChannelResponse {
     subscription_count: u64,
@@ -35,7 +34,10 @@ impl HttpHandler {
         );
     }
 
-    pub async fn channels(Path(app_id): Path<u32>, State(mut state): State<AppState>) -> impl IntoResponse {
+    pub async fn channels(
+        Path(app_id): Path<u32>,
+        State(mut state): State<AppState>,
+    ) -> impl IntoResponse {
         todo!("Implement channels")
     }
 
