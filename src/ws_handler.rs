@@ -10,8 +10,10 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::net::SocketAddr;
 use std::sync::{Arc, Weak};
+use tokio::sync::Mutex;
 use web_socket::Event;
 use toji::{WebSocketUpgrade, WS};
+use crate::adapters::adapter::Adapter;
 use crate::web_socket::WebSocket;
 
 #[derive(Debug, Clone)]
@@ -73,7 +75,7 @@ impl WSHandler {
         Log::websocket(&format!("Message: {}", message));
     }
 
-    pub(crate) async fn on_message(message: PusherMessage, mut ws: &mut WebSocket) {
+    pub(crate) async fn on_message(message: PusherMessage, mut ws: &WebSocket, state: Arc<Mutex<AppState>>) {
         Log::websocket_title("Received message from client");
         match message.data {
             Some(data) => {
@@ -83,15 +85,12 @@ impl WSHandler {
                 Log::websocket("No data");
             }
         }
-        match message.event {
+        match message.event { 
             Some(event) => match event.as_str() {
                 "pusher:subscribe" => {
-                    Log::websocket("Subscribing to channel");
-                    ws.send_json(serde_json::json!({
-                        "event": "pusher_internal:subscription_succeeded",
-                        "data": serde_json::json!({}),
-                    }))
-                        .await;
+                    WSHandler::subscribe_to_channel(ws, message.channel.unwrap()).await;
+                    let ws_id = ws.id.as_ref().unwrap().clone();
+                    state.lock().await.sockets.lock().await.insert(ws_id, ws);
                 }
                 "pusher:unsubscribe" => {
                     ws.send_json(serde_json::json!({
@@ -136,12 +135,10 @@ impl WSHandler {
         Log::websocket_title("Received ping");
     }
 
-    pub async fn handle_socket(socket: WS, who: SocketAddr) {
+    pub async fn handle_socket(socket: WS, who: SocketAddr, state: Arc<Mutex<AppState>>) {
         println!("New WebSocket connection: {}", who);
         let mut ws = WebSocket::new(socket);
-        WSHandler::on_open(&mut ws
-                           //, state
-        ).await;
+        WSHandler::on_open(&mut ws).await;
         while let Ok(ev) = ws.ws.recv().await {
             match ev {
                 Event::Data { ty, data } => {
@@ -149,7 +146,7 @@ impl WSHandler {
                     let data = String::from_utf8(data.to_vec()).unwrap();
                     let pusher_message: message::PusherMessage =
                         serde_json::from_str(&data).unwrap();
-                    WSHandler::on_message(pusher_message, &mut ws).await;
+                    WSHandler::on_message(pusher_message, &ws, state.clone()).await;
                 }
                 Event::Ping(_) => {
                     WSHandler::handle_ping(&mut ws).await;
@@ -172,7 +169,7 @@ impl WSHandler {
         query: Query<PusherWebsocketQuery>,
         ws: WebSocketUpgrade,
         ConnectInfo(addr): ConnectInfo<SocketAddr>,
-        // State(state): State<AppState>,
+        State(state): State<Arc<Mutex<AppState>>>,
     ) -> impl IntoResponse {
         Log::info(format!(
             "WebSocket connection for app {}. Protocol: {}, client: {}, version: {}, flash: {}",
@@ -182,7 +179,14 @@ impl WSHandler {
             query.version.as_deref().unwrap_or(""),
             query.flash.unwrap_or(false)
         ));
-        ws.on_upgrade(move |socket| WSHandler::handle_socket(socket, addr))
+        ws.on_upgrade(move |socket| WSHandler::handle_socket(socket, addr, state))
+    }
+    pub async fn subscribe_to_channel(ws: &WebSocket, channel_name: String) {
+        ws.send_json(serde_json::json!({
+            "event": "pusher_internal:subscription_succeeded",
+            "data": serde_json::json!({}),
+        }))
+            .await;
     }
 }
 

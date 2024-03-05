@@ -1,10 +1,10 @@
+use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use axum::{Router, ServiceExt};
 use axum::routing::get;
 use serde::Serialize;
 use tokio::sync::Mutex;
-use crate::adapters::adapter::Adapter;
 use crate::options::Options;
 use crate::ws_handler::WSHandler;
 
@@ -23,18 +23,19 @@ mod adapters;
 mod http_handler;
 
 use adapters::local_adapter::LocalAdapter;
+use crate::web_socket::WebSocket;
 
 pub struct AppState {
     options: Options,
     closing: bool,
-    adapter: LocalAdapter,
+    sockets: Mutex<HashMap<String, WebSocket>>,
 }
 #[tokio::main]
 async fn main() {
     let app_state = AppState {
         options: Options::new(),
         closing: false,
-        adapter: LocalAdapter::new(),
+        sockets: Mutex::new(HashMap::new()),
     };
     pub type SharedState = Arc<Mutex<AppState>>;
     let app_state = SharedState::new(Mutex::new(app_state));

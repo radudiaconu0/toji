@@ -1,6 +1,7 @@
 use crate::channels::channel::Channel;
 use crate::channels::presence_channel_manager::PresenceMemberInfo;
 use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 use crate::adapters::adapter::Adapter;
 use crate::namespace::Namespace;
 use crate::web_socket::WebSocket;
@@ -32,7 +33,7 @@ impl Adapter for LocalAdapter {
 
     async fn add_socket(&mut self, app_id: &str, ws: WebSocket) -> bool {
         let namespace = self.namespaces.get_mut(app_id).unwrap();
-        namespace.add_socket(ws).unwrap();
+        namespace.add_socket(ws).await;
         true
     }
 

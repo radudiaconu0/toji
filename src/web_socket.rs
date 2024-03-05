@@ -1,6 +1,7 @@
 use std::hash::Hash;
 use std::sync::Arc;
 use serde::{Serialize, Deserialize};
+use tokio::sync::Mutex;
 use toji::WS;
 use crate::log::Log;
 
@@ -8,11 +9,12 @@ use crate::log::Log;
 pub struct User {
     pub id: String,
 }
+
 pub struct WebSocket {
     pub(crate) ws: WS,
     pub(crate) id: Option<String>,
     pub app_key: Option<String>,
-    pub(crate) user: Option<User>
+    pub(crate) user: Option<User>,
 }
 
 impl Hash for WebSocket {
@@ -24,7 +26,7 @@ impl Hash for WebSocket {
 impl WebSocket {
     pub fn new(ws: WS) -> Self {
         WebSocket {
-            ws,
+            ws: ws,
             id: None,
             app_key: None,
             user: None,
@@ -45,8 +47,5 @@ impl WebSocket {
             .send(message.as_str())
             .await
             .expect("TODO: panic message");
-    }
-    pub async fn stop(&mut self, socket: WS) {
-        socket.close("Closed").await.expect("TODO: panic message");
     }
 }
