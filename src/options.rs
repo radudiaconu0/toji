@@ -1,6 +1,6 @@
 use crate::app::App;
 use serde_json::Value;
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Redis {
     pub host: String,
     pub port: u16,
@@ -11,24 +11,24 @@ pub struct Redis {
     pub sentinels: Option<Vec<RedisSentinel>>,
     pub cluster: Option<Vec<ClusterNode>>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ClusterNode {
     pub host: String,
     pub port: u16,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct RedisSentinel {
     host: String,
     port: u16,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Adapter {
     pub driver: String,
     pub(crate) redis: RedisAdapter,
     pub(crate) cluster: ClusterAdapter,
     pub(crate) nats: NatsAdapter,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct RedisAdapter {
     pub request_timeout: i64,
     pub(crate) prefix: String,
@@ -36,11 +36,11 @@ pub struct RedisAdapter {
     pub(crate) redis_sub_options: Value,
     pub(crate) cluster_mode: bool,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct ClusterAdapter {
     pub request_timeout: i64,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct NatsAdapter {
     pub request_timeout: i64,
     pub(crate) prefix: String,
@@ -51,33 +51,40 @@ pub struct NatsAdapter {
     pub(crate) timeout: i64,
     pub(crate) nodes_number: Option<i64>,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct AppManager {
     pub(crate) driver: String,
     pub(crate) array: ArrayAppManager,
     pub(crate) cache: CacheAppManager,
     pub(crate) mysql: MySQLAppManager,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArrayAppManager {
     pub(crate) apps: Vec<App>,
 }
-#[derive(Debug, Clone, Copy)]
+
+impl Default for ArrayAppManager {
+    fn default() -> Self {
+        ArrayAppManager { apps: vec![] }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
 pub struct CacheAppManager {
     pub(crate) enabled: bool,
     pub(crate) ttl: i64,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct MySQLAppManager {
     pub(crate) table: String,
     pub(crate) version: String,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Prometheus {
     pub(crate) prefix: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Metrics {
     pub(crate) enabled: bool,
     pub(crate) driver: String,
@@ -86,7 +93,7 @@ pub struct Metrics {
     pub(crate) port: u16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Options {
     pub(crate) adapter: Adapter,
     pub(crate) app_manager: AppManager,

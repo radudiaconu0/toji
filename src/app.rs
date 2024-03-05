@@ -19,7 +19,7 @@ pub struct LambdaOptions {
     // client_options: Config,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) struct App {
     id: String,
     key: String,
